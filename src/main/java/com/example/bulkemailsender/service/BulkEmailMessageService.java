@@ -8,20 +8,24 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 @Service
 @RequiredArgsConstructor
 public class BulkEmailMessageService {
     private final EmailMessageService emailMessageService;
     private final BulkEmailMessageRepository bulkEmailMessageRepository;
-
-    @Autowired
-    private BulkEmailMessageMapper bulkEmailMessageMapper;
+    private final BulkEmailMessageMapper bulkEmailMessageMapper;
+    private final ExecutorService executorService= Executors.newFixedThreadPool(20);
 
     public void sendEmail(BulkEmailMessageDto bulkEmailMessageDto) {
         BulkEmailMessageEntity bulkEmailMessageEntity=bulkEmailMessageMapper
                 .mapDtoToEntity(bulkEmailMessageDto);
         bulkEmailMessageRepository.save(bulkEmailMessageEntity);
 
-        emailMessageService.sendEmail(bulkEmailMessageDto);
+        executorService.submit(()->{
+            emailMessageService.sendEmail(bulkEmailMessageDto);
+        });
     }
 }

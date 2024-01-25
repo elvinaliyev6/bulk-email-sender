@@ -13,6 +13,9 @@ public class BulkEmailMessageEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
+    private EmailMessageStatus status;
+
     @Column(name = "\"from\"")
     private String from;
     @Column(name = "\"to\"")
