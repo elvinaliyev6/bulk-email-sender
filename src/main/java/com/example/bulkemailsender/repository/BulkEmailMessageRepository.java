@@ -11,6 +11,6 @@ import java.util.Optional;
 @Repository
 public interface BulkEmailMessageRepository extends JpaRepository<BulkEmailMessageEntity,Long> {
 
-    List<BulkEmailMessageEntity> findAllByEmailMessageStatus(EmailMessageStatus emailMessageStatus);
+    List<BulkEmailMessageEntity> findAllByStatus(EmailMessageStatus emailMessageStatus);
 
 }

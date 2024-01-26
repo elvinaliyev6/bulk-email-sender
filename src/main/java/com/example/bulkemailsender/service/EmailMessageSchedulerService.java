@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 public class EmailMessageSchedulerService {
 
-    private final BulkEmailMessageService emailMessageService;
+    private final EmailMessageService emailMessageService;
     private final BulkEmailMessageRepository emailMessageRepository;
     private final BulkEmailMessageMapper emailMessageMapper;
 
@@ -25,7 +25,7 @@ public class EmailMessageSchedulerService {
     public void schedule() {
         try{
             List<BulkEmailMessageEntity> emailMessageEntities = emailMessageRepository
-                    .findAllByEmailMessageStatus(EmailMessageStatus.PENDING);
+                    .findAllByStatus(EmailMessageStatus.PENDING);
 
             for (BulkEmailMessageEntity entity : emailMessageEntities) {
                 entity.setStatus(EmailMessageStatus.SENDING);
@@ -33,14 +33,16 @@ public class EmailMessageSchedulerService {
             }
 
             for (BulkEmailMessageEntity entity : emailMessageEntities) {
-                entity.setStatus(EmailMessageStatus.SENDING);
-
                 BulkEmailMessageDto dto = emailMessageMapper.mapEntityToDto(entity);
 
                 try{
                     emailMessageService.sendEmail(dto);
+                    entity.setStatus(EmailMessageStatus.SENT);
                 }catch (Exception e){
                     log.error(e.getMessage(),e);
+                    entity.setStatus(EmailMessageStatus.FAILED);
+                }finally {
+                    emailMessageRepository.save(entity);
                 }
             }
 

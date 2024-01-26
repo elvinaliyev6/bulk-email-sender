@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class BulkEmailMessageDto {
 
-//    private String from;
+    private String from;
     private String to;
     private String subject;
     private String body;
