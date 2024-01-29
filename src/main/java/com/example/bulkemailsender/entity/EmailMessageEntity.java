@@ -4,12 +4,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @Entity
-public class BulkEmailMessageEntity {
+public class EmailMessageEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,10 +18,8 @@ public class BulkEmailMessageEntity {
 
     @Column(name = "\"from\"")
     private String from;
-    @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
-    @CollectionTable(name = "\"to\"", joinColumns = @JoinColumn(name = "bulk_email_message_id"))
     @Column(name = "\"to\"")
-    private List<String> to;
+    private String to;
     private String subject;
     @Column(columnDefinition = "TEXT")
     private String body;

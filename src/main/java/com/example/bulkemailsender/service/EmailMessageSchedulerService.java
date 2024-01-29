@@ -1,49 +1,57 @@
 package com.example.bulkemailsender.service;
 
-import com.example.bulkemailsender.data.BulkEmailMessageDto;
-import com.example.bulkemailsender.entity.BulkEmailMessageEntity;
+import com.example.bulkemailsender.data.EmailMessageDto;
+import com.example.bulkemailsender.entity.EmailMessageEntity;
 import com.example.bulkemailsender.entity.EmailMessageStatus;
-import com.example.bulkemailsender.mapper.BulkEmailMessageMapper;
-import com.example.bulkemailsender.repository.BulkEmailMessageRepository;
+import com.example.bulkemailsender.mapper.EmailMessageMapper;
+import com.example.bulkemailsender.repository.EmailMessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class EmailMessageSchedulerService {
 
-    private final EmailMessageService emailMessageService;
-    private final BulkEmailMessageRepository emailMessageRepository;
-    private final BulkEmailMessageMapper emailMessageMapper;
+    private final EmailMessageSender emailMessageSender;
+    private final EmailMessageRepository emailMessageRepository;
+    private final EmailMessageMapper emailMessageMapper;
+    private final ExecutorService executorService=Executors.newFixedThreadPool(20);
+    private Semaphore semaphore=new Semaphore(1000);
 
     @Scheduled(fixedDelay = 1000)
     public void schedule() {
         try{
-            List<BulkEmailMessageEntity> emailMessageEntities = emailMessageRepository
+            List<EmailMessageEntity> emailMessageEntities = emailMessageRepository
                     .findAllByStatus(EmailMessageStatus.PENDING);
 
-            for (BulkEmailMessageEntity entity : emailMessageEntities) {
+            for (EmailMessageEntity entity : emailMessageEntities) {
                 entity.setStatus(EmailMessageStatus.SENDING);
                 emailMessageRepository.save(entity);
             }
 
-            for (BulkEmailMessageEntity entity : emailMessageEntities) {
-                BulkEmailMessageDto dto = emailMessageMapper.mapEntityToDto(entity);
+            for (EmailMessageEntity entity : emailMessageEntities) {
+                EmailMessageDto dto = emailMessageMapper.mapEntityToDto(entity);
 
-                try{
-                    emailMessageService.sendEmail(dto);
-                    entity.setStatus(EmailMessageStatus.SENT);
-                }catch (Exception e){
-                    log.error(e.getMessage(),e);
-                    entity.setStatus(EmailMessageStatus.FAILED);
-                }finally {
-                    emailMessageRepository.save(entity);
-                }
+                executorService.submit(()->{
+                    try{
+                        emailMessageSender.sendEmail(dto);
+                        entity.setStatus(EmailMessageStatus.SENT);
+                    }catch (Exception e){
+                        log.error(e.getMessage(),e);
+                        entity.setStatus(EmailMessageStatus.FAILED);
+                    }finally {
+                        emailMessageRepository.save(entity);
+                    }
+                });
             }
 
         }catch (Exception ex){

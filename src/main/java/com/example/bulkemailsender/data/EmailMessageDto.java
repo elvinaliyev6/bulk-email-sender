@@ -1,16 +1,16 @@
 package com.example.bulkemailsender.data;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
-public class BulkEmailMessageDto {
+@Builder
+public class EmailMessageDto {
 
     private String from;
-    private List<String> to;
+    private String to;
     private String subject;
     private String body;
 
