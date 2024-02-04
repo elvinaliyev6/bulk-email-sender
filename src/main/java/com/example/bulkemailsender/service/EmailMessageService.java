@@ -6,6 +6,7 @@ import com.example.bulkemailsender.entity.EmailMessageStatus;
 import com.example.bulkemailsender.mapper.EmailMessageMapper;
 import com.example.bulkemailsender.repository.EmailMessageRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,6 +17,7 @@ public class EmailMessageService {
     private final EmailMessageMapper emailMessageMapper;
 //    private final ExecutorService executorService= Executors.newFixedThreadPool(20);
 
+    private final KafkaTemplate<Long,Long> kafkaTemplate;
     public void sendEmail(EmailMessageDto emailMessageDto) {
         EmailMessageEntity emailMessageEntity = emailMessageMapper
                 .mapDtoToEntity(emailMessageDto);
@@ -25,5 +27,7 @@ public class EmailMessageService {
 //        executorService.submit(()->{
 //            emailMessageService.sendEmail(bulkEmailMessageDto);
 //        });
+
+        kafkaTemplate.send("emailMessageTopic",emailMessageEntity.getId());
     }
 }
