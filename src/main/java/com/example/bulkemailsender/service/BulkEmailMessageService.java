@@ -3,12 +3,8 @@ package com.example.bulkemailsender.service;
 import com.example.bulkemailsender.data.BulkEmailMessageDto;
 import com.example.bulkemailsender.data.EmailMessageDto;
 import com.example.bulkemailsender.entity.BulkEmailMessageEntity;
-import com.example.bulkemailsender.entity.EmailMessageEntity;
-import com.example.bulkemailsender.entity.EmailMessageStatus;
 import com.example.bulkemailsender.mapper.BulkEmailMessageMapper;
-import com.example.bulkemailsender.mapper.EmailMessageMapper;
 import com.example.bulkemailsender.repository.BulkEmailMessageRepository;
-import com.example.bulkemailsender.repository.EmailMessageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +29,7 @@ public class BulkEmailMessageService {
                     .subject(bulkEmailMessageDto.getSubject())
                     .from(bulkEmailMessageDto.getFrom())
                     .to(to)
+                    .emailMessagePriority(bulkEmailMessageDto.getPriority())
                     .build();
 
             emailMessageService.sendEmail(emailMessageDto);

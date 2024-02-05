@@ -1,5 +1,6 @@
 package com.example.bulkemailsender.data;
 
+import com.example.bulkemailsender.entity.EmailMessagePriority;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,5 +14,6 @@ public class EmailMessageDto {
     private String to;
     private String subject;
     private String body;
+    private EmailMessagePriority emailMessagePriority;
 
 }

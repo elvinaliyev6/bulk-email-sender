@@ -13,9 +13,6 @@ public class EmailMessageEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    private EmailMessageStatus status;
-
     @Column(name = "\"from\"")
     private String from;
     @Column(name = "\"to\"")
@@ -23,5 +20,11 @@ public class EmailMessageEntity {
     private String subject;
     @Column(columnDefinition = "TEXT")
     private String body;
+
+    @Enumerated(EnumType.STRING)
+    private EmailMessageStatus status;
+
+    @Enumerated(EnumType.STRING)
+    private EmailMessagePriority emailMessagePriority;
 
 }
